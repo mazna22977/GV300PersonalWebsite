@@ -1,0 +1,60 @@
+---
+title: "🏛️ Mazna Nasir Almaeeni"
+image: "MaznaAlmaeeni.jpeg"
+links:
+  - label: LinkedIn
+    url: "https://linkedin.com/"
+  - label: Twitter
+    url: "https://twitter.com/"
+  - label: GitHub
+    url: "https://github.com/"
+  - label: Email
+    url: "mailto:email@email.com"
+site: distill::distill_website
+output: postcards::jolla
+
+---
+ 
+
+### Politics & International Relations | University of Essex
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Status-Aspiring%20Diplomat-blue?style=flat-square&logo=gitbook&logoColor=white" />
+  <img src="https://img.shields.io/badge/Focus-Global%20Governance-gold?style=flat-square" />
+  <img src="https://img.shields.io/badge/Entrepreneur-Atelier%20Lmzn-black?style=flat-square" />
+</p>
+
+---
+
+### 🌟 Professional Summary
+I am a **Politics and International Relations** specialist at the **University of Essex**, deeply invested in the mechanics of diplomacy, international cooperation, and global governance. My academic journey is driven by a fascination with how diplomatic strategy and leadership strengthen relations between nations. 
+
+I am dedicated to mastering the analytical and policy skills necessary to contribute meaningfully to global stability and international institutions.
+
+---
+
+### 🎯 2026 - 2027 Goals
+> "To bridge the gap between academic theory and diplomatic practice."
+
+-  **Professional Placement:** Secure an internship within a governmental or international organization.
+-  **Skills Acquisition:** Master advanced policy analysis and diplomatic communication.
+-  **Global Perspective:** Expand my network within the UAE Government Leaders Programme.
+
+---
+
+### 🎨 Beyond the Books
+I believe in a multi-disciplinary approach to leadership. When I am not analyzing international affairs, I am focusing on:
+
+* **⚡ Leadership:** Engaging in the *UAE Government Leaders Programme* and diplomacy-focused initiatives.
+* **✨ Creative Entrepreneurship:** Managing my luxury abaya brand, *Atelier Lmzn*, where I focus on strategic growth and design.
+* **🌍 Personal Growth:** Staying ahead of international affairs and building the foundations for a long-term career in public service.
+
+---
+
+### 🛠️ Core Competencies
+| Diplomacy & Policy | Leadership & Business | Tools & Research |
+| :--- | :--- | :--- |
+| 🌍 International Relations | 📈 Strategic Branding | 📝 Qualitative Research |
+| 🤝 Conflict Resolution | 🏛️ Public Service | 📊 Policy Briefing |
+| 📜 Global Governance | 🎨 Creative Direction | 🗣️ Public Speaking |
+

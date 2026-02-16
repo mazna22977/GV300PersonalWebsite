@@ -1,0 +1,244 @@
+---
+title: "🗳️ Political Data Science: A/B Testing & Causal Inference"
+
+output: 
+  html_document:
+    theme: journal
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    highlight: espresso
+---
+
+
+
+# 📝 Executive Summary
+
+This project demonstrates the application of **Causal Inference** and **A/B Testing** within a political communications context. By simulating 1,500 website visitors, I evaluate how different landing page versions—a standard "Policy" page versus an "Issue-Focused" page—impact supporter signup rates.
+
+
+---
+
+
+
+## 🛠️ 1. Experimental Design & Simulation
+
+In this randomized controlled trial (RCT), we assign users to a **Control** group (Standard Homepage) or a **Treatment** group (Issue-Focused Homepage). 
+
+### ⚙️ Simulation Logic
+
+* **Control Baseline:** 12% conversion rate.
+* **Treatment Lift:** +5% (Total 17% expected).
+
+```{r simulate-data}
+# Set environment
+set.seed(2024)
+n <- 1500
+
+# 1. Random Treatment Assignment
+treatment <- rbinom(n = n, size = 1, prob = 0.5)
+
+# 2. Potential Outcomes (Counterfactuals)
+Y0 <- rbinom(n = n, size = 1, prob = 0.12) # Outcome if Control
+Y1 <- rbinom(n = n, size = 1, prob = 0.17) # Outcome if Treatment
+
+# 3. Observed Outcome (support_signup)
+support_signup <- ifelse(treatment == 1, Y1, Y0)
+
+# 4. Construct Dataframe
+party_ab <- data.frame(
+  visitor_id = 1:n,
+  treatment = treatment,
+  support_signup = support_signup
+)
+
+
+
+```
+
+```{r}
+# Load the knitr library for table formatting
+library(knitr)
+
+# Display the first 10 rows using kable
+kable(head(party_ab,10), 
+      caption = "Table 1: Preview of Simulated A/B Test Data",
+      col.names = c("Visitor ID", "Treatment (1=Issue, 0=Control)", "Signup (1=Yes, 0=No)"),
+      align = "ccc")
+```
+
+
+
+---
+
+
+## 📊 2. Estimating the Average Treatment Effect (ATE)
+The ATE represents the average difference in signup probability caused by the treatment.
+
+📈 Visualizing Group Conversions
+
+```{r}
+library(ggplot2)
+library(scales) # For better axis formatting
+
+# 1. Prepare Data
+mean_control <- mean(party_ab$support_signup[party_ab$treatment == 0])
+mean_treated <- mean(party_ab$support_signup[party_ab$treatment == 1])
+ate_hat <- mean_treated - mean_control
+
+plot_data <- data.frame(
+  Group = c("Control\n(Standard)", "Treatment\n(Issue-Focused)"),
+  Rate = c(mean_control, mean_treated)
+)
+
+# 2. Generate Professional Plot
+ggplot(plot_data, aes(x = Group, y = Rate, fill = Group)) +
+  # Use a slightly thinner column for a modern look
+  geom_col(width = 0.5, alpha = 0.85) + 
+  # Add percentage labels directly above bars
+  geom_text(aes(label = label_percent(accuracy = 0.1)(Rate)), 
+            vjust = -0.8, 
+            size = 5, 
+            fontface = "bold", 
+            color = "#2c3e50") +
+  # Custom Professional Colors
+  scale_fill_manual(values = c("Control\n(Standard)" = "#7f8c8d", 
+                               "Treatment\n(Issue-Focused)" = "#2980b9")) +
+  # Scale Y to give some "headroom" for labels
+  scale_y_continuous(labels = percent_format(), limits = c(0, 0.22)) +
+  # Professional Titles and Labels
+  labs(
+    title = "Impact of Messaging on Supporter Signups",
+    subtitle = paste0("The Issue-Focused homepage increased signups by ", 
+                      round(ate_hat * 100, 1), 
+                      " percentage points (p < 0.05)"),
+    caption = "Source: Simulated A/B Test Data (n=1500)\nNote: ATE estimated via Difference-in-Means",
+    x = NULL,
+    y = "Conversion Rate (%)"
+  ) +
+  # Clean Theme Overrides
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 18, color = "#2c3e50"),
+    plot.subtitle = element_text(size = 13, color = "#34495e", margin = margin(b = 15)),
+    plot.caption = element_text(size = 9, face = "italic", color = "gray50"),
+    panel.grid.major.x = element_blank(), # Remove vertical grid lines
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(color = "#2c3e50", face = "bold"),
+    legend.position = "none"
+  )
+
+```
+
+
+
+**Key Finding**: The Issue-Focused homepage resulted in a lift of r round(ate_hat * 100, 2) percentage points.
+
+
+---
+
+
+## 🔬 3. Comparative Modeling
+
+To ensure the results are statistically sound, I compare a Linear Probability Model (LPM) against Logistic Regression.
+
+🔹 **Linear Probability Model (OLS)**
+
+```{r}
+lm_model <- lm(support_signup ~ treatment, data = party_ab)
+
+```
+
+```{r echo=FALSE}
+library(broom) # Helps clean 'summary' objects into data frames
+
+# 1. Tidy the model output (estimates, std errors, p-values)
+modellm_tidy <- tidy(lm_model)
+
+# 2. Format as a professional table
+kable(modellm_tidy, 
+      digits = 4,
+      caption = "Table 2: Regression Coefficients",
+      col.names = c("Predictor", "Estimate", "Std. Error", "t-statistic", "p-value"),
+      align = "lcccc")
+```
+
+
+
+
+🔸 **Logistic Regression (Logit)**
+
+The Logit model handles binary outcomes by predicting log-odds, which I then convert back into probabilities.
+
+```{r}
+logit_model <- glm(support_signup ~ treatment, data = party_ab, family = binomial)
+
+p_control <- predict(logit_model, newdata = data.frame(treatment = 0), type = "response")
+p_treated <- predict(logit_model, newdata = data.frame(treatment = 1), type = "response")
+
+
+
+```
+
+**Logit Estimated ATE**:" `r round(p_treated - p_control, 4) `
+
+
+
+---
+
+## 👥 4. Demographic Heterogeneity
+I analyze whether the treatment effect changes based on visitor Age or Political Interest using interaction terms.
+
+```{r}
+# Simulate additional variables
+party_ab$age <- round(pmin(pmax(rnorm(n, 40, 12), 18), 75))
+party_ab$high_interest <- rbinom(n, 1, 0.4)
+
+```
+
+### Interaction Model
+
+**Formula** : Y ~ Treatment * Covariate
+
+```{r}
+lm_interaction <- lm(support_signup ~ treatment * high_interest + treatment * age, data = party_ab)
+
+```
+
+```{r echo=FALSE}
+library(broom) # Helps clean 'summary' objects into data frames
+
+# 1. Tidy the model output (estimates, std errors, p-values)
+model_tidy <- tidy(lm_interaction)
+
+# 2. Format as a professional table
+kable(model_tidy, 
+      digits = 4,
+      caption = "Table 3: Regression Coefficients with Interaction Terms",
+      col.names = c("Predictor", "Estimate (Effect Size)", "Std. Error", "t-statistic", "p-value"),
+      align = "lcccc")
+```
+
+
+
+**Observation**: If the treatment:age coefficient is positive, it suggests that the Issue-Focused page becomes more effective as the audience gets older.
+
+
+---
+
+## ⚖️ 5. Ethical Implications
+
+In political data science, optimization must be balanced with ethics:
+
+**Transparency**: Unlike commercial A/B tests, political messaging influences democratic choice.
+
+**Micro-targeting**: Using demographic interactions to serve specific messages can lead to societal polarization.
+
+**Data Privacy**: The collection of "Interest Level" creates sensitive profiles that require high security.
+
+
+
+---
+
+## 🏁 Conclusion
+The data confirms that an Issue-Focused landing page significantly increases conversion for this fictitious party. Moving forward, the party should consider a rollout of Version B while maintaining a commitment to factual accuracy and ethical voter engagement.

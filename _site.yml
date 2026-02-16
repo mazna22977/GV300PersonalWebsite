@@ -1,0 +1,19 @@
+name: "."
+title: "GV300 Student Assignment: Personal Website (Postcards + Distill)"
+description: |
+  Build a personal GitHub website using Postcards and Distill, then publish a GV300 showcase of your best code and visualization.
+output_dir: "docs"
+navbar:
+  right:
+    - text: "Home"
+      href: index.html
+    - text: "MyProject"
+      href: GV300ProjectDetails.html
+    - icon: fab fa-github
+      text: "GitRepo"
+      href: https://github.com/mazna22977/GV300PersonalWebsite
+    
+output:
+  distill::distill_article:
+
+      
