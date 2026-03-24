@@ -1,0 +1,46 @@
+---
+title: "Assignment 6: Text Analysis"
+author: "Mazna"
+output: html_document
+---
+
+### Introduction
+For the text analysis section of this portfolio, I decided to analyze political speeches. Specifically, I am using the US State of the Union addresses. I want to see if we can measure the overall sentiment (positive vs. negative) of different presidents over recent decades.
+
+```{r setup, message=FALSE, warning=FALSE}
+# Loading the packages needed for data manipulation and text mining
+library(tidyverse)
+library(tidytext)
+library(sotu) # This package contains the speeches and metadata
+
+# Combine the metadata with the actual speech text
+recent_speeches <- sotu_meta %>%
+  mutate(text = sotu_text) %>%
+  filter(year >= 1990)
+
+# Now we need to tokenize the text (break it into individual words)
+# We also need to remove "stop words" (like 'the', 'and', 'a') so they don't mess up our counts
+cleaned_speeches <- recent_speeches %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)
+
+# Match our words with the bing dictionary and calculate a net score for each president
+sentiment_summary <- cleaned_speeches %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(president, sentiment) %>%
+  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>%
+  mutate(net_sentiment = positive - negative)
+
+# Let's peek at the calculated scores
+head(sentiment_summary)
+
+# Creating a bar chart of the net sentiment scores
+ggplot(sentiment_summary, aes(x = reorder(president, net_sentiment), y = net_sentiment, fill = net_sentiment > 0)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() + # Flipping the axes makes the president names easier to read
+  labs(title = "Sentiment of US Presidents' State of the Union Addresses",
+       subtitle = "Speeches from 1990 to Present",
+       x = "President",
+       y = "Net Sentiment Score") +
+  theme_minimal()
+
